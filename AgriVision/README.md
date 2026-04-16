@@ -9,9 +9,9 @@ Predicts yield in tonnes/ha for 101 countries and 10 crop types.
 |-------|-----------|------------|-----|
 | Mean Predictor (baseline) | 6.48 | 8.51 | 0.000 |
 | Median Predictor (baseline) | 5.81 | 9.31 | -0.196 |
-| **Tuned SVR (ours)** | **2.30** | **3.84** | **0.796** |
+| **Tuned SVR (ours)** | **2.41** | **3.98** | **0.782** |
 
-SVR improves RMSE by **54.8%** over the mean predictor baseline.
+SVR improves RMSE by **53.3%** over the mean predictor baseline.
 
 ## Dataset
 
@@ -89,9 +89,12 @@ test data during GridSearchCV, preventing data leakage.
 
 | Feature | R² decrease when shuffled |
 |---------|--------------------------|
-| log_pesticides | 0.477 |
-| avg_temp | 0.401 |
-| rainfall_mm | 0.325 |
-| rainfall_temp_ratio | 0.308 |
-| country_enc | 0.279 |
+| log_pesticides | 0.465 |
+| rainfall_temp_ratio | 0.423 |
+| avg_temp | 0.393 |
+| rainfall_mm | 0.338 |
+| country_enc | 0.292 |
+| heat_stress_index | 0.262 |
+| crop_enc | 0.234 |
+| pesticides_tonnes | 0.169 |
 # AgriVision-CropYield-SVR

@@ -149,6 +149,3 @@ def tune_svr():
 
 if __name__ == "__main__":
     tune_svr()
-
-if __name__ == "__main__":
-    tune_svr()

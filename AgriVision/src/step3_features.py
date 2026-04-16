@@ -32,12 +32,13 @@ def engineer_features():
     df["crop_enc"]    = le_crop.fit_transform(df["crop"])
     print(f"\n✅ Label encoded: country ({df['country_enc'].nunique()} classes), crop ({df['crop_enc'].nunique()} classes)")
 
-    # ── 2. Drop year ──────────────────────────────────────────
+    # ── 2. Drop year from FEATURE_COLS but keep in CSV ───────
     # WHY: year leaks a temporal trend (yields rise over time due
-    # to technology). Including it makes the model learn the
-    # calendar, not the climate-yield relationship.
-    df.drop(columns=["year"], inplace=True)
-    print("✅ Year column dropped — prevents temporal leakage")
+    # to technology). Including it in the SVR makes the model learn
+    # the calendar, not the climate-yield relationship.
+    # HOWEVER: year is preserved in features_dataset.csv so that
+    # Phase 2 (LSTM) can reshape data into temporal sequences.
+    print("✅ Year kept in CSV for Phase 2 temporal modeling (excluded from FEATURE_COLS)")
 
     # ── 3. Engineered interaction features ───────────────────
 
@@ -56,9 +57,12 @@ def engineer_features():
     # Feature C: heat stress index
     # RATIONALE: Crops under high temperature AND low rainfall
     # suffer the most. This term captures their conjunction.
-    # Clipped to [0,1] for stable kernel computation.
-    df["heat_stress_index"] = np.clip(
-        df["avg_temp"] * (1 - df["rainfall_mm"] / 3000), 0, 1
+    # Clipped at 0 only — wet regions (rainfall > 3000mm) get 0 (no heat stress).
+    # Upper clip removed: original clip(0,1) collapsed 89.8% of rows to 1.0,
+    # making the feature nearly binary. StandardScaler in the Pipeline
+    # handles the resulting range [0, ~35] without loss of information.
+    df["heat_stress_index"] = np.maximum(
+        df["avg_temp"] * (1 - df["rainfall_mm"] / 3000), 0
     ).round(4)
 
     print("\n✅ Engineered features created:")

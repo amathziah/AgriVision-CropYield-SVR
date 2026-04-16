@@ -1,4 +1,4 @@
-Model,MAE,RMSE,R²
+Model,MAE,RMSE,R2
 Mean Predictor,6.4799,8.5135,0.0
 Median Predictor,5.8105,9.3107,-0.1961
-Tuned SVR,2.3025,3.8448,0.796
+Tuned SVR,2.4058,3.9765,0.7818
