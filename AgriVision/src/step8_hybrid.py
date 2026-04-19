@@ -45,11 +45,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-ARTIFACT_PATH = Path("models/bilstm_artifact.pkl")
-SVR_PATH      = Path("models/best_svr_model.pkl")
+ARTIFACT_PATH = Path("models/phase2/bilstm_artifact.pkl")
+SVR_PATH      = Path("models/phase1/best_svr_model.pkl")
+HYBRID_PATH   = Path("models/phase3/hybrid_artifact.pkl")
 DATA_PATH     = Path("data/features_dataset.csv")
-RESULTS_PATH  = Path("results")
-RESULTS_PATH.mkdir(exist_ok=True)
+RESULTS_PATH  = Path("results/phase3")
+RESULTS_PATH.mkdir(parents=True, exist_ok=True)
+HYBRID_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 SVR_FEATURE_COLS = [
     "country_enc", "crop_enc", "rainfall_mm", "avg_temp",
@@ -301,8 +303,8 @@ def run_hybrid():
         "hyb_preds"       : hyb_preds_orig,
         "svr_preds"       : svr_preds_orig,
         "dl_preds"        : dl_preds_orig,
-    }, "models/hybrid_artifact.pkl")
-    print("  Hybrid artifact saved → models/hybrid_artifact.pkl")
+    }, HYBRID_PATH)
+    print(f"  Hybrid artifact saved → {HYBRID_PATH}")
 
     print("\n" + "=" * 60)
     print(f"  FINAL RESULTS (same test set, N={len(y_te)})")

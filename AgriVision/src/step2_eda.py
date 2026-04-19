@@ -16,8 +16,8 @@ from pathlib import Path
 from scipy import stats
 
 DATA_PATH    = Path("data/final_dataset.csv")
-RESULTS_PATH = Path("results")
-RESULTS_PATH.mkdir(exist_ok=True)
+RESULTS_PATH = Path("results/phase1")
+RESULTS_PATH.mkdir(parents=True, exist_ok=True)
 
 def run_eda():
     df = pd.read_csv(DATA_PATH)
@@ -93,7 +93,7 @@ def run_eda():
     print(f"\n✅ Missing values: {df.isnull().sum().sum()} — dataset is complete")
 
     print("\n" + "=" * 60)
-    print("  EDA COMPLETE — 3 plots saved to results/")
+    print(f"  EDA COMPLETE — 3 plots saved to {RESULTS_PATH}/")
     print("=" * 60)
 
 if __name__ == "__main__":

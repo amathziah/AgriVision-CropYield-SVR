@@ -38,8 +38,21 @@ AgriVision/
 │   ├── step5_tuning.py       ← GridSearchCV hyperparameter tuning
 │   └── step6_validation.py   ← ablation study and feature importance
 ├── models/
-│   └── best_svr_model.pkl    ← saved trained model
-├── results/                  ← all plots and ablation_results.csv
+│   ├── phase1/best_svr_model.pkl     ← Phase 1 (SVR)
+│   ├── phase2/bilstm_artifact.pkl    ← Phase 2 (BiLSTM+Attention)
+│   └── phase3/hybrid_artifact.pkl    ← Phase 3 (Hybrid)
+├── results/
+│   ├── phase1/                       ← EDA + SVR plots, ablation_results.csv
+│   ├── phase2/                       ← DL learning curves, attention, per-crop R²
+│   └── phase3/                       ← Hybrid ablation, architecture diagram
+├── report/
+│   ├── phase1/                       ← Phase 1 report
+│   ├── phase2/                       ← Phase 2 report
+│   └── phase3/                       ← Phase 3 report
+├── presentation/
+│   ├── phase1/                       ← Phase 1 slides + simulator
+│   ├── phase2/
+│   └── phase3/
 └── requirements.txt
 ```
 

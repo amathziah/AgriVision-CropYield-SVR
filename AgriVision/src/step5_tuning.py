@@ -21,8 +21,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 DATA_PATH  = Path("data/features_dataset.csv")
-MODEL_PATH = Path("models/best_svr_model.pkl")
-MODEL_PATH.parent.mkdir(exist_ok=True)
+MODEL_PATH = Path("models/phase1/best_svr_model.pkl")
+MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 FEATURE_COLS = [
     "country_enc", "crop_enc", "rainfall_mm", "avg_temp",

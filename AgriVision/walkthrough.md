@@ -84,34 +84,42 @@ AgriVision/
 │   └── step8_hybrid.py         Hybrid SVR on DL embeddings + ablation (Phase 3)
 │
 ├── models/
-│   ├── best_svr_model.pkl      Trained SVR (Phase 1)
-│   ├── bilstm_artifact.pkl     Trained BiLSTM + embeddings (Phase 2)
-│   └── hybrid_artifact.pkl     Trained Hybrid SVR (Phase 3)
+│   ├── phase1/best_svr_model.pkl       Trained SVR (Phase 1)
+│   ├── phase2/bilstm_artifact.pkl      Trained BiLSTM + embeddings (Phase 2)
+│   └── phase3/hybrid_artifact.pkl      Trained Hybrid SVR (Phase 3)
 │
 ├── results/
-│   ├── eda_yield_distribution.png
-│   ├── eda_yield_by_crop.png
-│   ├── eda_correlation.png
-│   ├── svr_kernel_comparison.png
-│   ├── svr_predicted_vs_actual.png
-│   ├── svr_residuals.png
-│   ├── ablation_comparison.png
-│   ├── ablation_results.csv
-│   ├── feature_importance.png
-│   ├── dl_results.png              Learning curves + predicted vs actual
-│   ├── dl_per_crop_r2.png          Per-crop R² for BiLSTM model
-│   ├── dl_attention_weights.png    Which years in lookback get highest attention
-│   ├── phase3_ablation.png         All 4 models compared side by side
-│   ├── phase3_ablation.csv
-│   ├── hybrid_predicted_vs_actual.png
-│   └── architecture_diagram.png    Publication-ready hybrid diagram
+│   ├── phase1/
+│   │   ├── eda_yield_distribution.png
+│   │   ├── eda_yield_by_crop.png
+│   │   ├── eda_correlation.png
+│   │   ├── svr_kernel_comparison.png
+│   │   ├── svr_predicted_vs_actual.png
+│   │   ├── svr_residuals.png
+│   │   ├── ablation_comparison.png
+│   │   ├── ablation_results.csv
+│   │   └── feature_importance.png
+│   ├── phase2/
+│   │   ├── dl_results.png              Learning curves + predicted vs actual
+│   │   ├── dl_per_crop_r2.png          Per-crop R² for BiLSTM model
+│   │   └── dl_attention_weights.png    Which lookback years matter most
+│   └── phase3/
+│       ├── phase3_ablation.png         All 4 models compared side by side
+│       ├── phase3_ablation.csv
+│       ├── hybrid_predicted_vs_actual.png
+│       └── architecture_diagram.png    Publication-ready hybrid diagram
 │
 ├── presentation/
-│   ├── AgriVision_Phase1.pptx
-│   └── AgriVision_Simulator.html
+│   ├── phase1/
+│   │   ├── AgriVision_Phase1.pptx
+│   │   └── AgriVision_Simulator.html
+│   ├── phase2/                         (Phase 2 slides — pending)
+│   └── phase3/                         (Phase 3 slides — pending)
 │
 ├── report/
-│   └── AgriVision_Phase1_Report.docx
+│   ├── phase1/AgriVision_Phase1_Report.docx
+│   ├── phase2/                         (Phase 2 report — pending)
+│   └── phase3/                         (Phase 3 report — pending)
 │
 ├── AgriVision.ipynb            Full notebook version of the pipeline
 ├── requirements.txt
@@ -213,7 +221,7 @@ GridSearchCV over 81 combinations (C × gamma × epsilon, 3-fold CV):
 | gamma | scale, 0.01, 0.1 |
 | epsilon | 0.1, 0.5, 1.0 |
 
-Best params: `C=10, epsilon=0.5, gamma=scale`. Model saved to `models/best_svr_model.pkl`.
+Best params: `C=10, epsilon=0.5, gamma=scale`. Model saved to `models/phase1/best_svr_model.pkl`.
 
 ### Step 6 — Validation and Ablation (`step6_validation.py`)
 
@@ -326,10 +334,10 @@ a sequence of 3 dry years depresses yield differently than a single dry year,
 something SVR cannot express by treating each row independently.
 
 **Outputs**:
-- `results/dl_results.png` — learning curves + predicted vs actual
-- `results/dl_per_crop_r2.png` — per-crop R² breakdown
-- `results/dl_attention_weights.png` — attention weights showing which lookback years matter
-- `models/bilstm_artifact.pkl` — model weights, scalers, and 128-dim embeddings for every row
+- `results/phase2/dl_results.png` — learning curves + predicted vs actual
+- `results/phase2/dl_per_crop_r2.png` — per-crop R² breakdown
+- `results/phase2/dl_attention_weights.png` — attention weights showing which lookback years matter
+- `models/phase2/bilstm_artifact.pkl` — model weights, scalers, and 128-dim embeddings for every row
 
 ---
 
@@ -392,10 +400,10 @@ Progressive improvement at each step proves the necessity of each component:
 - Hybrid over mean: **76.8% total reduction**
 
 **Outputs**:
-- `results/phase3_ablation.png` — bar chart comparing all 4 models
-- `results/hybrid_predicted_vs_actual.png`
-- `results/architecture_diagram.png` — publication-ready diagram with tensor shapes
-- `models/hybrid_artifact.pkl` — trained hybrid pipeline
+- `results/phase3/phase3_ablation.png` — bar chart comparing all 4 models
+- `results/phase3/hybrid_predicted_vs_actual.png`
+- `results/phase3/architecture_diagram.png` — publication-ready diagram with tensor shapes
+- `models/phase3/hybrid_artifact.pkl` — trained hybrid pipeline
 
 ---
 
@@ -427,7 +435,7 @@ pip install -r requirements.txt
 
 ```bash
 python src/step1_load.py        # clean data → data/final_dataset.csv
-python src/step2_eda.py         # EDA plots  → results/eda_*.png
+python src/step2_eda.py         # EDA plots  → results/phase1/eda_*.png
 python src/step3_features.py    # features   → data/features_dataset.csv
 python src/step4_svr.py         # kernel comparison (fast)
 python src/step5_tuning.py      # GridSearchCV (~5 min)

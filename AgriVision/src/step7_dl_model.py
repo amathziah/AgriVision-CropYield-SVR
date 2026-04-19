@@ -67,10 +67,10 @@ np.random.seed(42)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 DATA_PATH     = Path("data/features_dataset.csv")
-ARTIFACT_PATH = Path("models/bilstm_artifact.pkl")
-RESULTS_PATH  = Path("results")
-RESULTS_PATH.mkdir(exist_ok=True)
-ARTIFACT_PATH.parent.mkdir(exist_ok=True)
+ARTIFACT_PATH = Path("models/phase2/bilstm_artifact.pkl")
+RESULTS_PATH  = Path("results/phase2")
+RESULTS_PATH.mkdir(parents=True, exist_ok=True)
+ARTIFACT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 # ── Hyper-parameters ──────────────────────────────────────────────────────────
 LOOKBACK     = 5        # years of temporal context per sample
