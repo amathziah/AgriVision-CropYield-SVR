@@ -1,5 +1,0 @@
-Model,MAE,RMSE,R2
-Mean Predictor,6.4482,8.5439,0.0
-SVR-only (8 features),2.1787,3.6215,0.8203
-BiLSTM+Attention,1.2785,2.2832,0.9286
-Hybrid (DL embeds → SVR),1.1265,1.9809,0.9462

@@ -1,17 +1,18 @@
 # AgriVision — Satellite-Based Precision Agriculture
 
-Crop yield prediction using Support Vector Regression on FAO climate data.
-Predicts yield in tonnes/ha for 101 countries and 10 crop types.
+Crop yield prediction progressing from classical ML (SVR) to deep learning (BiLSTM + Attention)
+on FAO climate data. Predicts yield in tonnes/ha for 101 countries and 10 crop types.
 
 ## Results
 
-| Model | MAE (t/ha) | RMSE (t/ha) | R² |
-|-------|-----------|------------|-----|
-| Mean Predictor (baseline) | 6.48 | 8.51 | 0.000 |
-| Median Predictor (baseline) | 5.81 | 9.31 | -0.196 |
-| **Tuned SVR (ours)** | **2.41** | **3.98** | **0.782** |
+| Phase | Model | MAE (t/ha) | RMSE (t/ha) | R² |
+|-------|-------|-----------|------------|-----|
+| Baseline | Mean Predictor | 6.48 | 8.51 | 0.000 |
+| Phase 1 | **Tuned SVR (RBF)** | **2.41** | **3.98** | **0.782** |
+| Phase 2 | **BiLSTM + Attention** | **1.28** | **2.28** | **0.929** |
 
-SVR improves RMSE by **53.3%** over the mean predictor baseline.
+Phase 2 BiLSTM improves RMSE by **73.2%** over the mean predictor baseline.
+SVR (Phase 1) improves RMSE by **53.3%** over the mean predictor baseline.
 
 ## Dataset
 
@@ -39,20 +40,14 @@ AgriVision/
 │   └── step6_validation.py   ← ablation study and feature importance
 ├── models/
 │   ├── phase1/best_svr_model.pkl     ← Phase 1 (SVR)
-│   ├── phase2/bilstm_artifact.pkl    ← Phase 2 (BiLSTM+Attention)
-│   └── phase3/hybrid_artifact.pkl    ← Phase 3 (Hybrid)
+│   └── phase2/bilstm_artifact.pkl    ← Phase 2 (BiLSTM+Attention)
 ├── results/
 │   ├── phase1/                       ← EDA + SVR plots, ablation_results.csv
-│   ├── phase2/                       ← DL learning curves, attention, per-crop R²
-│   └── phase3/                       ← Hybrid ablation, architecture diagram
+│   └── phase2/                       ← DL learning curves, attention, per-crop R²
 ├── report/
-│   ├── phase1/                       ← Phase 1 report
-│   ├── phase2/                       ← Phase 2 report
-│   └── phase3/                       ← Phase 3 report
+│   └── phase1/                       ← Phase 1 report
 ├── presentation/
-│   ├── phase1/                       ← Phase 1 slides + simulator
-│   ├── phase2/
-│   └── phase3/
+│   └── phase1/                       ← Phase 1 slides + simulator
 └── requirements.txt
 ```
 
@@ -65,12 +60,16 @@ pip install -r requirements.txt
 ## Run Order
 
 ```bash
+# Phase 1 — SVR
 python src/step1_load.py
 python src/step2_eda.py
 python src/step3_features.py
 python src/step4_svr.py
-python src/step5_tuning.py     # takes 3-5 minutes (81 model fits)
+python src/step5_tuning.py       # takes 3-5 minutes (81 model fits)
 python src/step6_validation.py
+
+# Phase 2 — Deep Learning
+python src/step7_dl_model.py     # takes 10-20 minutes on CPU
 ```
 
 ## Key Design Decisions

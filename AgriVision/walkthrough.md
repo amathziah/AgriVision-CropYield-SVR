@@ -1,8 +1,8 @@
 # AgriVision — Complete Project Walkthrough
 
-AgriVision is a three-phase machine learning project that predicts agricultural crop yields
+AgriVision is a two-phase machine learning project that predicts agricultural crop yields
 (tonnes per hectare) using climate and pesticide data. It progresses from classical ML (SVR)
-through deep learning (BiLSTM + Attention) to a hybrid architecture that combines both.
+through deep learning (BiLSTM + Attention).
 
 ---
 
@@ -12,9 +12,8 @@ through deep learning (BiLSTM + Attention) to a hybrid architecture that combine
 2. [File Structure](#2-file-structure)
 3. [Phase 1 — Classical ML with SVR](#3-phase-1--classical-ml-with-svr)
 4. [Phase 2 — Deep Learning with BiLSTM + Attention](#4-phase-2--deep-learning-with-bilstm--attention)
-5. [Phase 3 — Hybrid Architecture](#5-phase-3--hybrid-architecture)
-6. [Final Results Across All Phases](#6-final-results-across-all-phases)
-7. [How to Run](#7-how-to-run)
+5. [Final Results Across All Phases](#5-final-results-across-all-phases)
+6. [How to Run](#6-how-to-run)
 
 ---
 
@@ -80,13 +79,11 @@ AgriVision/
 │   ├── step4_svr.py            Compare Linear / RBF / Polynomial SVR kernels
 │   ├── step5_tuning.py         GridSearchCV + per-crop target normalisation
 │   ├── step6_validation.py     Ablation vs baselines + permutation importance
-│   ├── step7_dl_model.py       BiLSTM + Attention (Phase 2)
-│   └── step8_hybrid.py         Hybrid SVR on DL embeddings + ablation (Phase 3)
+│   └── step7_dl_model.py       BiLSTM + Attention (Phase 2)
 │
 ├── models/
 │   ├── phase1/best_svr_model.pkl       Trained SVR (Phase 1)
-│   ├── phase2/bilstm_artifact.pkl      Trained BiLSTM + embeddings (Phase 2)
-│   └── phase3/hybrid_artifact.pkl      Trained Hybrid SVR (Phase 3)
+│   └── phase2/bilstm_artifact.pkl      Trained BiLSTM + embeddings (Phase 2)
 │
 ├── results/
 │   ├── phase1/
@@ -99,27 +96,18 @@ AgriVision/
 │   │   ├── ablation_comparison.png
 │   │   ├── ablation_results.csv
 │   │   └── feature_importance.png
-│   ├── phase2/
-│   │   ├── dl_results.png              Learning curves + predicted vs actual
-│   │   ├── dl_per_crop_r2.png          Per-crop R² for BiLSTM model
-│   │   └── dl_attention_weights.png    Which lookback years matter most
-│   └── phase3/
-│       ├── phase3_ablation.png         All 4 models compared side by side
-│       ├── phase3_ablation.csv
-│       ├── hybrid_predicted_vs_actual.png
-│       └── architecture_diagram.png    Publication-ready hybrid diagram
+│   └── phase2/
+│       ├── dl_results.png              Learning curves + predicted vs actual
+│       ├── dl_per_crop_r2.png          Per-crop R² for BiLSTM model
+│       └── dl_attention_weights.png    Which lookback years matter most
 │
 ├── presentation/
-│   ├── phase1/
-│   │   ├── AgriVision_Phase1.pptx
-│   │   └── AgriVision_Simulator.html
-│   ├── phase2/                         (Phase 2 slides — pending)
-│   └── phase3/                         (Phase 3 slides — pending)
+│   └── phase1/
+│       ├── AgriVision_Phase1.pptx
+│       └── AgriVision_Simulator.html
 │
 ├── report/
-│   ├── phase1/AgriVision_Phase1_Report.docx
-│   ├── phase2/                         (Phase 2 report — pending)
-│   └── phase3/                         (Phase 3 report — pending)
+│   └── phase1/AgriVision_Phase1_Report.docx
 │
 ├── AgriVision.ipynb            Full notebook version of the pipeline
 ├── requirements.txt
@@ -341,89 +329,21 @@ something SVR cannot express by treating each row independently.
 
 ---
 
-## 5. Phase 3 — Hybrid Architecture
-
-**Goal**: Combine SVR's kernel-based robustness with the temporal representations
-learned by BiLSTM to produce a model strictly better than either alone.
-
-### Step 8 — Hybrid SVR on DL Embeddings (`step8_hybrid.py`)
-
-**Architecture**:
-
-```
-Raw climate data
-      │
-      ├──────────────────────────────────┐
-      │                                  │
-      ↓                                  ↓
-BiLSTM + Attention                SVR Feature Set
-  (trained in Phase 2)             (8 engineered features)
-      │                                  │
-      ↓                                  │
-128-dim embedding per row                │
-      │                                  │
-      └──────────┬───────────────────────┘
-                 │  Concatenation
-                 ↓
-         (N, 136 features)
-                 │
-      SVR (RBF kernel, GridSearchCV)
-                 │
-                 ↓
-         Yield prediction (t/ha)
-```
-
-**Why this coupling is meaningful**:
-SVR sees 8 hand-engineered features that describe the current year's climate.
-The BiLSTM embeddings encode "what has been happening for this country-crop pair
-over the past 5 years". These are complementary signals — the SVR's kernel function
-then operates in a 136-dimensional space that contains both contemporaneous climate
-features and learned temporal context.
-
-**Why SVR on top of DL embeddings rather than the DL output directly**:
-The DL model's dense head can overfit to patterns in the training distribution.
-SVR with an RBF kernel provides regularisation through the margin — it is
-explicitly robust to outliers in the embedding space.
-
-**Ablation study** (identical test set for all models, N=3,890):
-
-| Model | MAE (t/ha) | RMSE (t/ha) | R² |
-|-------|-----------|-------------|-----|
-| Mean Predictor | 6.45 | 8.54 | 0.000 |
-| SVR-only (Phase 1) | 2.18 | 3.62 | 0.820 |
-| BiLSTM+Attention (Phase 2) | 1.28 | 2.28 | 0.929 |
-| Hybrid (DL embeds → SVR) | 1.13 | 1.98 | 0.946 |
-
-Progressive improvement at each step proves the necessity of each component:
-- DL over SVR: **37% RMSE reduction** (temporal context matters)
-- Hybrid over DL: **13.2% further reduction** (SVR kernel adds robustness)
-- Hybrid over mean: **76.8% total reduction**
-
-**Outputs**:
-- `results/phase3/phase3_ablation.png` — bar chart comparing all 4 models
-- `results/phase3/hybrid_predicted_vs_actual.png`
-- `results/phase3/architecture_diagram.png` — publication-ready diagram with tensor shapes
-- `models/phase3/hybrid_artifact.pkl` — trained hybrid pipeline
-
----
-
-## 6. Final Results Across All Phases
+## 5. Final Results Across All Phases
 
 | Phase | Model | RMSE (t/ha) | R² |
 |-------|-------|-------------|-----|
 | Baseline | Mean Predictor | 8.54 | 0.000 |
 | Phase 1 | SVR (RBF, tuned) | 3.98 | 0.782 |
 | Phase 2 | BiLSTM + Attention | 2.28 | 0.929 |
-| Phase 3 | Hybrid (DL → SVR) | 1.98 | 0.946 |
 
 Each phase strictly improves over the previous. The progression demonstrates that:
 1. Non-linear kernel methods (SVR) outperform trivial baselines on tabular climate data
 2. Exploiting the temporal structure of the data (BiLSTM) yields a large additional gain
-3. Combining learned temporal representations with classical ML (Hybrid) squeezes further improvement
 
 ---
 
-## 7. How to Run
+## 6. How to Run
 
 ### Setup
 
@@ -448,16 +368,10 @@ python src/step6_validation.py  # ablation + feature importance
 python src/step7_dl_model.py    # BiLSTM + Attention (~15 min on CPU)
 ```
 
-### Phase 3 — Hybrid
-
-```bash
-python src/step8_hybrid.py      # Hybrid SVR + ablation + architecture diagram (~10 min)
-```
-
 ### Pretrained models
 
-All models are already trained and saved in `models/`. Steps 7 and 8 can load
-from their respective artifacts without retraining if you only want to run inference
+All models are already trained and saved in `models/`. Step 7 can load
+from the artifact without retraining if you only want to run inference
 or generate plots.
 
 ### Dependencies
