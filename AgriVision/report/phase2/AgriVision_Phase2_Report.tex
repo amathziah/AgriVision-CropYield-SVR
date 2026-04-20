@@ -15,6 +15,8 @@
 \usepackage{float}
 \usepackage{array}
 \usepackage{tabularx}
+\usepackage{subcaption}
+\graphicspath{{../../results/phase2/}}
 
 \hypersetup{
     colorlinks=true,
@@ -461,8 +463,19 @@ This isolation of experimental conditions makes the comparison a clean measureme
 of the value of temporal memory for this dataset.
 
 \subsection{Learning Curve Analysis}
-The learning curves (Fig.~1 in the supplementary results folder
-\texttt{results/phase2/dl\_results.png}) show:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{dl_results.png}
+    \caption{Left: Training and validation MSE loss per epoch.
+             Right: Predicted vs.\ actual yield (t/ha) on the test set.
+             Val loss tracks train throughout with a small gap (no overfitting).
+             The visible kink marks the first \texttt{ReduceLROnPlateau} halving
+             event. Points cluster tightly around the diagonal ($R^2 = 0.929$).}
+    \label{fig:learning_curves}
+\end{figure}
+
+The learning curves (Fig.~\ref{fig:learning_curves}) show:
 \begin{itemize}
     \item \textbf{No overfitting}: validation loss tracks training loss throughout
           training; the train-val gap remains small.
@@ -470,10 +483,25 @@ The learning curves (Fig.~1 in the supplementary results folder
           the first epoch at which \texttt{ReduceLROnPlateau} halved the learning rate.
     \item \textbf{Early stopping}: training halts before epoch 100; best weights
           from the lowest-val-loss epoch are restored automatically.
+    \item \textbf{Predicted vs.\ actual}: the scatter plot shows test-set predictions
+          aligned closely with the identity line, confirming $R^2 = 0.929$.
 \end{itemize}
 
 \subsection{Per-Crop $R^2$ Breakdown}
-Per-crop $R^2$ is computed by isolating test-set predictions for each crop.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{dl_per_crop_r2.png}
+    \caption{Per-crop $R^2$ on the held-out test set.
+             The dashed red line marks the overall $R^2 = 0.929$.
+             Red bars (if any) indicate crops where the model underperforms
+             the mean predictor; all bars positive confirms generalisation
+             across all 10 crop types.}
+    \label{fig:per_crop_r2}
+\end{figure}
+
+Per-crop $R^2$ is computed by isolating test-set predictions for each crop
+(Fig.~\ref{fig:per_crop_r2}).
 Annual cereals (Wheat, Maize, Rice, Sorghum) achieve $R^2 > 0.93$, consistent with
 the hypothesis that multi-year temperature and rainfall sequences are the dominant
 yield drivers for these crops.
@@ -484,8 +512,21 @@ No crop achieves a negative per-crop $R^2$, confirming the model outperforms the
 mean predictor for every crop type.
 
 \subsection{Attention Weight Analysis}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{dl_attention_weights.png}
+    \caption{Attention weight distributions $(\alpha_1,\ldots,\alpha_5)$ for
+             8 sample test sequences.
+             Each bar represents the fraction of model attention allocated to
+             one lookback year ($t{-}4$ through $t$).
+             Taller bars toward $t$ indicate recency bias; shifts toward
+             earlier timesteps reveal multi-year cumulative stress signals.}
+    \label{fig:attention}
+\end{figure}
+
 Attention weights $\alpha_1, \ldots, \alpha_5$ are extracted for test sequences and
-visualised as bar charts (Fig.~3 in \texttt{results/phase2/dl\_attention\_weights.png}).
+visualised as bar charts in Fig.~\ref{fig:attention}.
 The dominant pattern is that $\alpha$ is highest for the most recent years
 ($t{-}1$ and $t$), consistent with agronomic intuition that last year's climate
 is the strongest predictor of this year's yield.
