@@ -12,10 +12,17 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.inspection import permutation_importance
+import os
 
 MODEL_PATH   = Path("models/phase1/best_svr_model.pkl")
 RESULTS_PATH = Path("results/phase1")
 RESULTS_PATH.mkdir(parents=True, exist_ok=True)
+
+# Surgical cleanup: only delete files this script produces to avoid removing step4 plots
+for f in ["ablation_results.csv", "svr_predicted_vs_actual.png", "svr_residuals.png", "ablation_comparison.png", "feature_importance.png"]:
+    file_path = RESULTS_PATH / f
+    if file_path.exists():
+        os.remove(file_path)
 
 def run_validation():
     saved      = joblib.load(MODEL_PATH)

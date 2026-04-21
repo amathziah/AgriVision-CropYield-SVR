@@ -13,6 +13,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
+import shutil
 from pathlib import Path
 
 from sklearn.model_selection import train_test_split
@@ -23,6 +24,8 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 DATA_PATH    = Path("data/features_dataset.csv")
 RESULTS_PATH = Path("results/phase1")
+if RESULTS_PATH.exists():
+    shutil.rmtree(RESULTS_PATH)
 RESULTS_PATH.mkdir(parents=True, exist_ok=True)
 
 FEATURE_COLS = [

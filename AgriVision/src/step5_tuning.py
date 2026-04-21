@@ -12,6 +12,7 @@ import numpy as np
 import joblib
 import warnings
 warnings.filterwarnings("ignore")
+import shutil
 from pathlib import Path
 
 from sklearn.model_selection import train_test_split, GridSearchCV
@@ -22,6 +23,8 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 DATA_PATH  = Path("data/features_dataset.csv")
 MODEL_PATH = Path("models/phase1/best_svr_model.pkl")
+if MODEL_PATH.parent.exists():
+    shutil.rmtree(MODEL_PATH.parent)
 MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 FEATURE_COLS = [

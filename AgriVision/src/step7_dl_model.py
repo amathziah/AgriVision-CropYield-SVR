@@ -58,6 +58,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import joblib
+import shutil
 from pathlib import Path
 import warnings
 warnings.filterwarnings("ignore")
@@ -69,6 +70,11 @@ np.random.seed(42)
 DATA_PATH     = Path("data/features_dataset.csv")
 ARTIFACT_PATH = Path("models/phase2/bilstm_artifact.pkl")
 RESULTS_PATH  = Path("results/phase2")
+if RESULTS_PATH.exists():
+    shutil.rmtree(RESULTS_PATH)
+if ARTIFACT_PATH.parent.exists():
+    shutil.rmtree(ARTIFACT_PATH.parent)
+
 RESULTS_PATH.mkdir(parents=True, exist_ok=True)
 ARTIFACT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -215,12 +221,7 @@ class BiLSTMAttention(nn.Module):
         x = self.dropout(x)
         return self.fc_out(x).squeeze(-1), attn_w                        # (B,),(B,T)
 
-    def get_embedding(self, seq, static):
-        """128-dim representation for Phase 3 hybrid SVR."""
-        lstm_out, _ = self.bilstm(seq)
-        context, _  = self.attention(lstm_out)
-        x = torch.cat([context, static], dim=-1)
-        return self.dropout(self.relu(self.bn1(self.fc1(x))))            # (B,128)
+
 
 
 # ── Train / eval helper ───────────────────────────────────────────────────────
@@ -422,8 +423,7 @@ def train_bilstm():
     plt.axhline(r2, color="red", linestyle="--", lw=1.2,
                 label=f"Overall R²={r2:.3f}")
     plt.ylabel("R²")
-    plt.title("Per-Crop R² — BiLSTM+Attention\n"
-              "(Red bars = crops the model struggles with — candidates for hybrid fix)",
+    plt.title("Per-Crop R² — BiLSTM+Attention",
               fontweight="bold")
     plt.legend(); plt.tight_layout()
     plt.savefig(RESULTS_PATH / "dl_per_crop_r2.png", dpi=150)
@@ -460,20 +460,7 @@ def train_bilstm():
     plt.close()
     print("  ✅ Plot saved: dl_attention_weights.png")
 
-    # ── Extract full-dataset embeddings for Phase 3 ───────────────
-    print("\n  Extracting embeddings for Phase 3 hybrid...")
-    model.eval()
-    s_all  = seq_scaler.transform(seqs.reshape(-1, F)).reshape(B, T, F).astype(np.float32)
-    st_all = stat_scaler.transform(stats).astype(np.float32)
 
-    all_embeds = []
-    full_loader = DataLoader(CropDataset(s_all, st_all, tgts_norm), batch_size=BATCH_SIZE)
-    with torch.no_grad():
-        for s_b, st_b, _ in full_loader:
-            emb = model.get_embedding(s_b.to(DEVICE), st_b.to(DEVICE))
-            all_embeds.append(emb.cpu().numpy())
-    all_embeds = np.vstack(all_embeds)
-    print(f"  Embeddings : {all_embeds.shape}  (128-dim per row)")
 
     # ── Save artifact ─────────────────────────────────────────────
     artifact = {
@@ -485,7 +472,6 @@ def train_bilstm():
             "dropout"     : DROPOUT,
         },
         "scalers"      : {"seq": seq_scaler, "stat": stat_scaler},
-        "embeddings"   : all_embeds,       # (N,128) aligned to df sorted by country,crop,year
         "idx_train"    : idx_tr,
         "idx_val"      : idx_vl,
         "idx_test"     : idx_te,
