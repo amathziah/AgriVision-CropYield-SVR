@@ -1,0 +1,4 @@
+.DS_Store
+.gemini/
+.ipynb_checkpoints/
+__pycache__/

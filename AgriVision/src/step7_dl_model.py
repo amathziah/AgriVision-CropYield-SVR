@@ -70,13 +70,6 @@ np.random.seed(42)
 DATA_PATH     = Path("data/features_dataset.csv")
 ARTIFACT_PATH = Path("models/phase2/bilstm_artifact.pkl")
 RESULTS_PATH  = Path("results/phase2")
-if RESULTS_PATH.exists():
-    shutil.rmtree(RESULTS_PATH)
-if ARTIFACT_PATH.parent.exists():
-    shutil.rmtree(ARTIFACT_PATH.parent)
-
-RESULTS_PATH.mkdir(parents=True, exist_ok=True)
-ARTIFACT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 # ── Hyper-parameters ──────────────────────────────────────────────────────────
 LOOKBACK     = 5        # years of temporal context per sample
@@ -255,6 +248,14 @@ def train_bilstm():
     print("=" * 60)
     print("  STEP 7 — BiLSTM + ATTENTION  (Phase 2)")
     print("=" * 60)
+
+    # Clean previous outputs only when running directly (not when imported)
+    if RESULTS_PATH.exists():
+        shutil.rmtree(RESULTS_PATH)
+    if ARTIFACT_PATH.parent.exists():
+        shutil.rmtree(ARTIFACT_PATH.parent)
+    RESULTS_PATH.mkdir(parents=True, exist_ok=True)
+    ARTIFACT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_csv(DATA_PATH)
     print(f"\n  Data: {df.shape[0]} rows, {df.shape[1]} columns")
